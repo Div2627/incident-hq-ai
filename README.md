@@ -15,16 +15,13 @@ IncidentHQ AI is a decentralized self-healing framework engineered to minimize *
 ## 🛠️ The Architecture Layout (Sequential Stateful Mesh)
 To maximize structural stability, prevent resource deadlocks, and enforce deterministic runtime execution, the engine coordinates tasks across four specialized worker nodes rather than relying on an unstable single-prompt LLM sequence:
 
-[System Anomaly Log Input]
-│
-▼
-┌───────────┐       ┌───────────┐       ┌───────────┐       ┌───────────┐
-│ Node 01   │ ➔ ➔ ➔ │ Node 02   │ ➔ ➔ ➔ │ Node 03   │ ➔ ➔ ➔ │ Node 04   │
-│ Triager   │       │Investigator│       │  Patcher  │       │Security QA│
-└───────────┘       └───────────┘       └───────────┘       └───────────┘
-│                   │                   │                   │
-Isolates Fault       Scans RAG           Generates          Validates AST
-Vectors           Documentation         Remediation          Structures
+### 🛰️ Core Multi-Agent Orchestration Flow
+
+| **Node 01: Triager** | ➔ | **Node 02: Investigator** | ➔ | **Node 03: Patcher** | ➔ | **Node 04: Security QA** |
+| :--- | :---: | :--- | :---: | :--- | :---: | :--- |
+| • Parses stack trace<br>• Isolates breaking file<br>• Defines error scope | **➔** | • Runs semantic lookup<br>• Scans local docs<br>• Extracts rules | **➔** | • Writes target logic<br>• Builds `try/finally`<br>• Safely closes leaks | **➔** | • Validates AST syntax<br>• Screens backdoor code<br>• Authorizes main build |
+
+---
 
 ### 📡 Node 01: Telemetry Triager Agent
 * **Role:** Incident Scope Boundary Definer
