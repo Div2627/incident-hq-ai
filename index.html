@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>IncidentHQ AI - Advanced Control Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        /* Neon Glow Effects */
+        .neon-glow-indigo {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+        }
+        .neon-text-emerald {
+            text-shadow: 0 0 8px rgba(52, 211, 153, 0.5);
+        }
+        /* Smooth arrow animation pulse */
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(139, 92, 246, 0.3)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.9)); transform: scale(1.1); }
+        }
+        .active-arrow {
+            animation: pulseGlow 1.5s infinite;
+            color: #a78bfa !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 min-h-screen font-sans transition-colors duration-200">
+    
+    <nav class="border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur px-8 py-4 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 rounded-full bg-indigo-500 neon-glow-indigo"></div>
+                <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">IncidentHQ AI</span>
+                <span class="text-xs font-mono px-2 py-0.5 bg-slate-200 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700">Production Engine v1.2</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleTheme()" class="p-2 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                    <span id="theme-icon" class="text-sm">🌙</span>
+                </button>
+                <button onclick="runSwarm()" id="btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-5 py-2.5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all transform active:scale-95">
+                    Deploy Triage Swarm
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-6">
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+                <p class="text-[10px] tracking-wider text-slate-400 font-bold uppercase">System Cluster Status</p>
+                <p id="health-status" class="text-lg font-bold text-emerald-500 mt-1 neon-text-emerald">Healthy</p>
+            </div>
+            <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+                <p class="text-[10px] tracking-wider text-slate-400 font-bold uppercase">Database Pool Load</p>
+                <p id="pool-metric" class="text-lg font-bold font-mono mt-1 text-slate-500 dark:text-slate-400">4 / 100 conns</p>
+            </div>
+            <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+                <p class="text-[10px] tracking-wider text-slate-400 font-bold uppercase">Swarm Mesh Cluster</p>
+                <p class="text-lg font-bold mt-1 text-indigo-500">4 Core Nodes Ready</p>
+            </div>
+            <div class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+                <p class="text-[10px] tracking-wider text-slate-400 font-bold uppercase">Execution Latency</p>
+                <p class="text-lg font-bold font-mono mt-1 text-purple-500">0.02s (Local Mode)</p>
+            </div>
+        </div>
+
+        <div class="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-6">Orchestration Mesh Mapping</h2>
+            <div class="flex flex-col md:flex-row justify-between items-center px-4 space-y-4 md:space-y-0">
+                
+                <div id="node-0" class="flex flex-col items-center p-3 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg w-40 transition-all duration-300">
+                    <span class="text-xs font-bold">1. Triager Agent</span>
+                    <span class="text-[10px] text-slate-500 mt-1">Standby</span>
+                </div>
+
+                <div id="arrow-1" class="text-2xl text-slate-300 dark:text-slate-800 font-bold transition-all duration-300 hidden md:block">➔</div>
+
+                <div id="node-1" class="flex flex-col items-center p-3 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg w-40 transition-all duration-300">
+                    <span class="text-xs font-bold">2. Investigator Agent</span>
+                    <span class="text-[10px] text-slate-500 mt-1">Standby</span>
+                </div>
+
+                <div id="arrow-2" class="text-2xl text-slate-300 dark:text-slate-800 font-bold transition-all duration-300 hidden md:block">➔</div>
+
+                <div id="node-2" class="flex flex-col items-center p-3 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg w-40 transition-all duration-300">
+                    <span class="text-xs font-bold">3. Patch Engineer</span>
+                    <span class="text-[10px] text-slate-500 mt-1">Standby</span>
+                </div>
+
+                <div id="arrow-3" class="text-2xl text-slate-300 dark:text-slate-800 font-bold transition-all duration-300 hidden md:block">➔</div>
+
+                <div id="node-3" class="flex flex-col items-center p-3 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg w-40 transition-all duration-300">
+                    <span class="text-xs font-bold">4. QA Inspector</span>
+                    <span class="text-[10px] text-slate-500 mt-1">Standby</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold tracking-wider text-slate-400 uppercase">Live Pipeline Stream Output</h2>
+                    <span id="loader" class="hidden text-xs text-indigo-500 font-mono animate-pulse">Routing node state protocols...</span>
+                </div>
+                <div id="timeline" class="space-y-4">
+                    <div class="text-center py-16 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl text-slate-400 text-sm bg-white dark:bg-slate-900/30">
+                        No active anomalies detected. Click <span class="text-indigo-400 font-bold">"Deploy Triage Swarm"</span> to simulate a real-time production system crash response loop.
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">System Engineering Knowledge Base</h3>
+                    <div class="flex space-x-2 border-b border-slate-200 dark:border-slate-800 pb-2 mb-3">
+                        <button onclick="switchTab('log')" id="tab-log" class="text-xs px-3 py-1.5 font-mono font-medium rounded-md bg-indigo-50 border border-indigo-200 dark:bg-indigo-950/40 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 transition-all">
+                            server_error.log
+                        </button>
+                        <button onclick="switchTab('doc')" id="tab-doc" class="text-xs px-3 py-1.5 font-mono font-medium rounded-md text-slate-400 hover:text-slate-200 transition-all">
+                            internal_docs.md
+                        </button>
+                    </div>
+                    <pre id="tab-content" class="bg-slate-50 dark:bg-slate-950 p-4 rounded-lg font-mono text-xs text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-900 overflow-x-auto leading-relaxed">Loading directory source log components...</pre>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col h-[650px] shadow-sm overflow-hidden">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                    <h3 class="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-200">Swarm Systems Co-Pilot</h3>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Human-in-the-loop diagnostic terminal console.</p>
+                </div>
+                
+                <div id="chat-box" class="flex-1 p-4 space-y-3 overflow-y-auto font-mono text-xs leading-relaxed">
+                    <div class="bg-slate-100 dark:bg-slate-950 p-3 rounded-lg border border-slate-200 dark:border-slate-900 text-slate-400">
+                        🤖 <span class="text-slate-200 font-bold">System Status Active.</span> Query operations:<br><br>
+                        <span class="text-indigo-400 font-bold">- "show status"</span><br>
+                        <span class="text-indigo-400 font-bold">- "why did you approve the patch?"</span><br>
+                        <span class="text-indigo-400 font-bold">- "initialize rollback"</span>
+                    </div>
+                </div>
+
+                <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/20">
+                    <form onsubmit="sendChatMessage(event)" class="flex space-x-2">
+                        <input id="chat-input" type="text" autocomplete="off" placeholder="Type a control pipeline macro query..." 
+                               class="flex-1 bg-slate-100 dark:bg-slate-950 text-xs border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 focus:outline-none focus:border-indigo-500 dark:focus:border-indigo-500 text-slate-800 dark:text-slate-100 font-mono">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 rounded-lg shadow-sm transition-all transform active:scale-95">Execute</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Tab Content Map Data
+        const tabs = {
+            log: `[2026-06-06 19:15:22] CRITICAL ERROR: database_pool.py - Connection Pool Exhausted.\nActive leaks matching session context threshold parameters: 100/100 connections locked.\nAffected Node Service Context: CheckoutGateway API v2 routing handler context log profile.`,
+            doc: `# Engineering Directory: Database Pool Context Retention Rules\n- Target Asset: CheckoutGateway API processes.\n- Rule: Asynchronous transaction pipelines utilizing SQLAlchemy structures MUST terminate transactions via clear 'session.close()' method wrappers. Failure to close connections causes severe lockouts under query spikes.`
+        };
+
+        // Initialize default tab layout contents
+        document.getElementById('tab-content').innerText = tabs.log;
+
+        function switchTab(target) {
+            const logBtn = document.getElementById('tab-log');
+            const docBtn = document.getElementById('tab-doc');
+            const output = document.getElementById('tab-content');
+            
+            output.innerText = tabs[target];
+            
+            if (target === 'log') {
+                logBtn.className = "text-xs px-3 py-1.5 font-mono font-medium rounded-md bg-indigo-50 border border-indigo-200 dark:bg-indigo-950/40 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 transition-all";
+                docBtn.className = "text-xs px-3 py-1.5 font-mono font-medium rounded-md text-slate-400 hover:text-slate-200 transition-all";
+            } else {
+                docBtn.className = "text-xs px-3 py-1.5 font-mono font-medium rounded-md bg-indigo-50 border border-indigo-200 dark:bg-indigo-950/40 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 transition-all";
+                logBtn.className = "text-xs px-3 py-1.5 font-mono font-medium rounded-md text-slate-400 hover:text-slate-200 transition-all";
+            }
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.innerText = '☀️';
+            } else {
+                html.classList.add('dark');
+                icon.innerText = '🌙';
+            }
+        }
+
+        async function runSwarm() {
+            const btn = document.getElementById('btn');
+            const loader = document.getElementById('loader');
+            const timeline = document.getElementById('timeline');
+            
+            // Revert mapping node visual status indicators
+            for(let i=0; i<4; i++) {
+                document.getElementById(`node-${i}`).className = "flex flex-col items-center p-3 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg w-40 transition-all duration-300";
+                document.getElementById(`node-${i}`).querySelector('span:last-child').innerText = "Standby";
+                document.getElementById(`node-${i}`).querySelector('span:last-child').className = "text-[10px] text-slate-500 mt-1";
+                if(i < 3) document.getElementById(`arrow-${i+1}`).className = "text-2xl text-slate-300 dark:text-slate-800 font-bold transition-all duration-300 hidden md:block";
+            }
+
+            document.getElementById('health-status').innerText = "Anomalies Caught...";
+            document.getElementById('health-status').className = "text-lg font-bold text-amber-500 mt-1 animate-pulse";
+            document.getElementById('pool-metric').innerText = "100 / 100 locked";
+            document.getElementById('pool-metric').className = "text-lg font-bold font-mono mt-1 text-rose-500 animate-pulse";
+
+            btn.disabled = true;
+            btn.className = "bg-slate-200 dark:bg-slate-800 text-slate-400 text-sm px-5 py-2.5 rounded-lg cursor-not-allowed transition-all";
+            loader.classList.remove('hidden');
+            timeline.innerHTML = '';
+
+            try {
+                const res = await fetch('/api/trigger-swarm', { method: 'POST' });
+                const data = await res.json();
+                
+                loader.classList.add('hidden');
+                document.getElementById('health-status').innerText = "Resolved & Audited";
+                document.getElementById('health-status').className = "text-lg font-bold text-emerald-500 mt-1 neon-text-emerald";
+                document.getElementById('pool-metric').innerText = "4 / 100 healthy";
+                document.getElementById('pool-metric').className = "text-lg font-bold font-mono mt-1 text-slate-400";
+
+                data.timeline.forEach((step, index) => {
+                    setTimeout(() => {
+                        // Light up the current running node index model layout matching
+                        const node = document.getElementById(`node-${index}`);
+                        node.className = "flex flex-col items-center p-3 bg-indigo-50 border border-indigo-400 dark:bg-indigo-950/50 dark:border-indigo-500 rounded-lg w-40 shadow-md neon-glow-indigo transition-all duration-300 scale-105";
+                        node.querySelector('span:last-child').innerText = "Executing Core Engine...";
+                        node.querySelector('span:last-child').className = "text-[10px] text-indigo-500 dark:text-indigo-400 mt-1 font-bold animate-pulse";
+                        
+                        // Neon glow the arrow pointing out from this active node pipeline step
+                        if (index > 0) {
+                            document.getElementById(`arrow-${index}`).className = "text-2xl font-bold transition-all duration-300 hidden md:block active-arrow";
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-xl shadow-sm transition-all duration-300 scale-[0.98] translate-y-3 opacity-0";
+                        card.innerHTML = `
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="w-2 h-2 rounded-full bg-indigo-500 shadow-md shadow-indigo-500"></span>
+                                <h3 class="font-bold text-xs tracking-wider uppercase text-slate-700 dark:text-slate-300">${step.agent}</h3>
+                            </div>
+                            <pre class="text-slate-600 dark:text-slate-400 text-xs whitespace-pre-wrap font-mono bg-slate-50 dark:bg-slate-950 p-4 border border-slate-100 dark:border-slate-900/60 rounded-lg overflow-x-auto leading-relaxed">${step.output}</pre>
+                        `;
+                        timeline.appendChild(card);
+                        
+                        setTimeout(() => {
+                            card.classList.remove('scale-[0.98]', 'translate-y-3', 'opacity-0');
+                            // Shift previous node to completed state markers
+                            if(index > 0) {
+                                const prevNode = document.getElementById(`node-${index-1}`);
+                                prevNode.className = "flex flex-col items-center p-3 bg-emerald-50/40 border border-emerald-300 dark:bg-emerald-950/20 dark:border-emerald-900/60 rounded-lg w-40 transition-all duration-300";
+                                prevNode.querySelector('span:last-child').innerText = "Task Completed ✓";
+                                prevNode.querySelector('span:last-child').className = "text-[10px] text-emerald-500 mt-1 font-medium";
+                            }
+                            if(index === 3) {
+                                node.className = "flex flex-col items-center p-3 bg-emerald-50/40 border border-emerald-300 dark:bg-emerald-950/20 dark:border-emerald-900/60 rounded-lg w-40 transition-all duration-300";
+                                node.querySelector('span:last-child').innerText = "Task Completed ✓";
+                                node.querySelector('span:last-child').className = "text-[10px] text-emerald-500 mt-1 font-medium";
+                            }
+                        }, 50);
+
+                    }, index * 800); // Elegant deliberate delays for presentation scannability
+                });
+            } catch (err) {
+                loader.innerText = "Connection break occurred on swarm channel backend.";
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.className = "bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-5 py-2.5 rounded-lg shadow-lg shadow-indigo-500/20 transition-all";
+                }, 3200);
+            }
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const box = document.getElementById('chat-box');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = "text-right text-slate-500 dark:text-slate-400 mb-1";
+            userDiv.innerHTML = `<span class="bg-slate-200 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg inline-block">👤 You: ${messageText}</span>`;
+            box.appendChild(userDiv);
+            input.value = '';
+            box.scrollTop = box.scrollHeight;
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: messageText })
+                });
+                const data = await res.json();
+                
+                const agentDiv = document.createElement('div');
+                agentDiv.className = "text-left text-indigo-400 mt-1 mb-2";
+                agentDiv.innerHTML = `<span class="bg-indigo-950/40 border border-indigo-900/50 px-2.5 py-1.5 rounded-lg inline-block">${data.response}</span>`;
+                box.appendChild(agentDiv);
+                box.scrollTop = box.scrollHeight;
+            } catch (err) {
+                console.error("Chat sync error.");
+            }
+        }
+    </script>
+</body>
+</html>
